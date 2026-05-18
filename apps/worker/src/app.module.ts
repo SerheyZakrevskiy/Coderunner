@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RunsModule } from './runs/runs.module';
+import { CodeExecutionProcessor } from './code-execution.processor';
 
 @Module({
   imports: [
@@ -13,9 +12,10 @@ import { RunsModule } from './runs/runs.module';
         port: 6379,
       },
     }),
-    RunsModule,
+    BullModule.registerQueue({
+      name: 'code-execution',
+    }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, CodeExecutionProcessor],
 })
 export class AppModule {}

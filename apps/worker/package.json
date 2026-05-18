@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "worker",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -23,9 +23,9 @@
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
-    "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "bullmq": "^5.76.10",
+    "execa": "^9.6.1",
     "ioredis": "^5.10.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
