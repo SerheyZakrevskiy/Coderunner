@@ -1,10 +1,6 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { execa } from 'execa';
-import { nanoid } from 'nanoid';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { tmpdir } from 'node:os';
 
 @Processor('code-execution')
 export class CodeExecutionProcessor extends WorkerHost {
@@ -20,16 +16,7 @@ export class CodeExecutionProcessor extends WorkerHost {
       };
     }
 
-    const runId = nanoid();
-    const tempDir = join(tmpdir(), `coderunner-${runId}`);
-    const sourceFile = join(tempDir, 'main.py');
-
     try {
-      await mkdir(tempDir, { recursive: true });
-      await writeFile(sourceFile, code, 'utf8');
-
-      const dockerMountPath = tempDir.replace(/\\/g, '/');
-
       const result = await execa(
         'docker',
         [
@@ -42,11 +29,10 @@ export class CodeExecutionProcessor extends WorkerHost {
           '--read-only',
           '--tmpfs',
           '/tmp:rw,size=64m',
-          '-v',
-          `${dockerMountPath}:/sandbox:ro`,
           'coderunner-python-sandbox',
           'python3',
-          '/sandbox/main.py',
+          '-c',
+          code,
         ],
         {
           timeout: 5000,
@@ -68,11 +54,6 @@ export class CodeExecutionProcessor extends WorkerHost {
           : (error.stderr ?? error.message),
         exitCode: error.exitCode ?? 1,
       };
-    } finally {
-      await rm(tempDir, {
-        recursive: true,
-        force: true,
-      });
     }
   }
 }
