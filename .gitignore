@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+
+docker-compose.prod.yml
+docker-compose.yml
+
+node_modules/
+dist/
+build/
+coverage/
+*.log
