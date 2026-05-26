@@ -1,40 +1,62 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Job, Queue } from 'bullmq';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Queue } from 'bullmq';
+
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class RunsService {
   constructor(
     @InjectQueue('code-execution')
-    private readonly queue: Queue,
+    private readonly codeExecutionQueue: Queue,
+    private readonly prisma: PrismaService,
   ) {}
 
-  async run(data: any) {
-    const job = await this.queue.add('execute', {
-      language: data.language,
-      code: data.code,
+  async run(body: any, userId: string) {
+    const run = await this.prisma.run.create({
+      data: {
+        language: body.language,
+        code: body.code,
+        status: 'queued',
+        userId,
+      },
+    });
+
+    await this.codeExecutionQueue.add('execute', {
+      runId: run.id,
+      language: body.language,
+      code: body.code,
     });
 
     return {
       status: 'queued',
-      jobId: job.id,
+      runId: run.id,
     };
   }
 
   async getRun(id: string) {
-    const job = await Job.fromId(this.queue, id);
+    const run = await this.prisma.run.findUnique({
+      where: {
+        id,
+      },
+    });
 
-    if (!job) {
+    if (!run) {
       throw new NotFoundException('Run not found');
     }
 
-    const state = await job.getState();
+    return run;
+  }
 
-    return {
-      jobId: job.id,
-      status: state,
-      result: job.returnvalue ?? null,
-      failedReason: job.failedReason ?? null,
-    };
+  async getHistory(userId: string) {
+    return this.prisma.run.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 20,
+    });
   }
 }
