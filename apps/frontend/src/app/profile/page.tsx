@@ -10,10 +10,20 @@ type Profile = {
   email: string;
 };
 
+type Run = {
+  id: string;
+  language: string;
+  status: string;
+  stdout: string | null;
+  stderr: string | null;
+  createdAt: string;
+};
+
 export default function ProfilePage() {
   const router = useRouter();
 
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [runs, setRuns] = useState<Run[]>([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -40,6 +50,16 @@ export default function ProfilePage() {
       }
 
       setProfile(data);
+      const runsResponse = await fetch(`${API_URL}/runs/history`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (runsResponse.ok) {
+        const runsData = await runsResponse.json();
+        setRuns(runsData);
+      }
     }
 
     loadProfile();
@@ -74,6 +94,34 @@ export default function ProfilePage() {
             >
               Logout
             </button>
+            <div className="mt-8">
+              <h2 className="mb-4 text-xl font-bold">Recent Runs</h2>
+
+              <div className="space-y-4">
+                {runs.map((run) => (
+                  <div
+                    key={run.id}
+                    className="rounded-lg border border-neutral-700 p-4"
+                  >
+                    <div className="mb-2 flex justify-between">
+                      <span>{run.language}</span>
+
+                      <span>{run.status}</span>
+                    </div>
+
+                    <div className="text-sm text-green-400">
+                      {run.stdout || "(empty)"}
+                    </div>
+
+                    {run.stderr && (
+                      <div className="mt-2 text-sm text-red-400">
+                        {run.stderr}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
