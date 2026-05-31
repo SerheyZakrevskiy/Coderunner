@@ -1,5 +1,7 @@
 "use client";
 
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Navbar } from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -85,12 +87,25 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-neutral-950 p-6 text-white">
+    <main
+      className="min-h-screen p-6"
+      style={{
+        background: "var(--app-bg)",
+        color: "var(--app-text)",
+      }}
+    >
+      <Navbar />
       <div className="mx-auto max-w-4xl space-y-6">
-        <header className="rounded-xl border border-neutral-800 bg-neutral-900 p-6">
+        <header
+          className="rounded-xl border p-6"
+          style={{
+            background: "var(--app-panel)",
+            borderColor: "var(--app-border)",
+          }}
+        >
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-2xl font-bold">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-2xl font-bold text-white">
                 {profile?.email?.[0]?.toUpperCase() ?? "U"}
               </div>
 
@@ -99,11 +114,12 @@ export default function ProfilePage() {
 
                 {profile && (
                   <div className="mt-2 space-y-1">
-                    <p className="text-lg font-medium text-neutral-100">
-                      {profile.email}
-                    </p>
+                    <p className="text-lg font-medium">{profile.email}</p>
 
-                    <p className="text-sm text-neutral-500">
+                    <p
+                      className="text-sm"
+                      style={{ color: "var(--app-muted)" }}
+                    >
                       CodeRunner account
                     </p>
                   </div>
@@ -113,45 +129,63 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => router.push("/")}
-                className="rounded-lg bg-neutral-800 px-4 py-2 font-medium text-white transition hover:bg-neutral-700"
-              >
-                CodeRunner
-              </button>
-
-              <button
-                onClick={logout}
-                className="rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-500"
-              >
-                Logout
-              </button>
-            </div>
+            <div className="flex flex-wrap gap-3"></div>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="rounded-xl border border-neutral-800 bg-black p-4">
-              <p className="text-sm text-neutral-500">Total runs</p>
+            <div
+              className="rounded-xl border p-4"
+              style={{
+                background: "var(--app-code-bg)",
+                borderColor: "var(--app-border)",
+              }}
+            >
+              <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                Total runs
+              </p>
               <p className="mt-2 text-2xl font-bold">{runs.length}</p>
             </div>
 
-            <div className="rounded-xl border border-neutral-800 bg-black p-4">
-              <p className="text-sm text-neutral-500">Completed</p>
+            <div
+              className="rounded-xl border p-4"
+              style={{
+                background: "var(--app-code-bg)",
+                borderColor: "var(--app-border)",
+              }}
+            >
+              <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                Completed
+              </p>
               <p className="mt-2 text-2xl font-bold text-green-400">
                 {runs.filter((run) => run.status === "completed").length}
               </p>
             </div>
 
-            <div className="rounded-xl border border-neutral-800 bg-black p-4">
-              <p className="text-sm text-neutral-500">Failed</p>
+            <div
+              className="rounded-xl border p-4"
+              style={{
+                background: "var(--app-code-bg)",
+                borderColor: "var(--app-border)",
+              }}
+            >
+              <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                Failed
+              </p>
               <p className="mt-2 text-2xl font-bold text-red-400">
                 {runs.filter((run) => run.status === "failed").length}
               </p>
             </div>
 
-            <div className="rounded-xl border border-neutral-800 bg-black p-4">
-              <p className="text-sm text-neutral-500">Languages</p>
+            <div
+              className="rounded-xl border p-4"
+              style={{
+                background: "var(--app-code-bg)",
+                borderColor: "var(--app-border)",
+              }}
+            >
+              <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                Languages
+              </p>
               <p className="mt-2 text-2xl font-bold">
                 {new Set(runs.map((run) => run.language)).size}
               </p>
@@ -159,17 +193,30 @@ export default function ProfilePage() {
           </div>
         </header>
 
-        <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-6">
+        <section
+          className="rounded-xl border p-6"
+          style={{
+            background: "var(--app-panel)",
+            borderColor: "var(--app-border)",
+          }}
+        >
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-2xl font-bold">Recent Runs</h2>
 
-            <span className="text-sm text-neutral-500">
+            <span className="text-sm" style={{ color: "var(--app-muted)" }}>
               {runs.length} total
             </span>
           </div>
 
           {runs.length === 0 && (
-            <p className="rounded-lg border border-neutral-800 bg-black p-4 text-neutral-500">
+            <p
+              className="rounded-lg border p-4"
+              style={{
+                background: "var(--app-code-bg)",
+                borderColor: "var(--app-border)",
+                color: "var(--app-muted)",
+              }}
+            >
               No runs yet.
             </p>
           )}
@@ -179,15 +226,22 @@ export default function ProfilePage() {
               <button
                 key={run.id}
                 onClick={() => router.push(`/runs/${run.id}`)}
-                className="w-full rounded-lg border border-neutral-700 bg-black p-4 text-left transition hover:border-blue-600 hover:bg-neutral-800"
+                className="w-full rounded-lg border p-4 text-left transition hover:border-blue-600"
+                style={{
+                  background: "var(--app-code-bg)",
+                  borderColor: "var(--app-border)",
+                }}
               >
                 <div className="mb-3 flex items-center justify-between gap-4">
                   <div>
-                    <div className="text-sm font-semibold uppercase text-neutral-200">
+                    <div className="text-sm font-semibold uppercase">
                       {run.language}
                     </div>
 
-                    <div className="mt-1 text-xs text-neutral-600">
+                    <div
+                      className="mt-1 text-xs"
+                      style={{ color: "var(--app-muted)" }}
+                    >
                       {new Date(run.createdAt).toLocaleString()}
                     </div>
                   </div>
@@ -201,10 +255,16 @@ export default function ProfilePage() {
                   </span>
                 </div>
 
-                <div className="rounded-md bg-neutral-950 p-3">
+                <div
+                  className="rounded-md p-3"
+                  style={{ background: "var(--app-panel)" }}
+                >
                   <p className="text-xs font-semibold text-green-400">STDOUT</p>
 
-                  <pre className="mt-1 line-clamp-3 whitespace-pre-wrap text-sm text-neutral-300">
+                  <pre
+                    className="mt-1 line-clamp-3 whitespace-pre-wrap text-sm"
+                    style={{ color: "var(--app-text)" }}
+                  >
                     {run.stdout || "(empty)"}
                   </pre>
 

@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Navbar } from "@/components/Navbar";
 import Editor from "@monaco-editor/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+type Language = "python" | "javascript";
 
 type RunResponse = {
   status: string;
@@ -26,10 +30,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 export default function Home() {
   const router = useRouter();
 
+  const [language, setLanguage] = useState<Language>("python");
   const [code, setCode] = useState(`for i in range(3):
     print(i)`);
-  const [language, setLanguage] = useState<"python" | "javascript">("python");
-
   const [result, setResult] = useState<RunResult | null>(null);
   const [runs, setRuns] = useState<RunResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
@@ -64,6 +67,23 @@ export default function Home() {
 
     const data: RunResult[] = await response.json();
     setRuns(data);
+  }
+
+  function changeLanguage(nextLanguage: Language) {
+    setLanguage(nextLanguage);
+
+    if (nextLanguage === "python") {
+      setCode(`for i in range(3):
+    print(i)`);
+    }
+
+    if (nextLanguage === "javascript") {
+      setCode(`for (let i = 0; i < 3; i++) {
+  console.log(i);
+}`);
+    }
+
+    setResult(null);
   }
 
   async function runCode() {
@@ -122,7 +142,7 @@ export default function Home() {
     } catch (error) {
       setResult({
         id: "",
-        language: language,
+        language,
         code,
         stdout: "",
         stderr: error instanceof Error ? error.message : "Unknown error",
@@ -137,6 +157,7 @@ export default function Home() {
   }
 
   function openRun(run: RunResult) {
+    setLanguage(run.language as Language);
     setCode(run.code);
     setResult(run);
   }
@@ -147,58 +168,55 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-100">
+    <main
+      className="min-h-screen"
+      style={{
+        background: "var(--app-bg)",
+        color: "var(--app-text)",
+      }}
+    >
+      <Navbar />
       <div className="mx-auto flex max-w-7xl flex-col gap-6 p-6">
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">CodeRunner</h1>
-            <p className="mt-2 text-neutral-400">
-              Secure Python execution in Docker sandbox
-            </p>
-          </div>
+        <header
+          className="rounded-xl border p-5"
+          style={{
+            background: "var(--app-panel)",
+            borderColor: "var(--app-border)",
+          }}
+        >
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">CodeRunner</h1>
+              <p className="mt-2" style={{ color: "var(--app-muted)" }}>
+                Secure Python and JavaScript execution in Docker sandbox
+              </p>
+            </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={() => router.push("/profile")}
-              className="rounded-lg bg-neutral-800 px-4 py-2 font-medium hover:bg-neutral-700"
-            >
-              Profile
-            </button>
-
-            <button
-              onClick={logout}
-              className="rounded-lg bg-red-600 px-4 py-2 font-medium hover:bg-red-500"
-            >
-              Logout
-            </button>
+            <div className="flex flex-wrap gap-3"></div>
           </div>
         </header>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
           <div className="flex flex-col gap-6">
-            <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
+            <section
+              className="rounded-xl border p-4"
+              style={{
+                background: "var(--app-panel)",
+                borderColor: "var(--app-border)",
+              }}
+            >
               <div className="mb-3 flex items-center justify-between">
                 <select
                   value={language}
-                  onChange={(event) => {
-                    const selectedLanguage = event.target.value as
-                      | "python"
-                      | "javascript";
-
-                    setLanguage(selectedLanguage);
-
-                    if (selectedLanguage === "python") {
-                      setCode(`for i in range(3):
-                        print(i)`);
-                    }
-
-                    if (selectedLanguage === "javascript") {
-                      setCode(`for (let i = 0; i < 3; i++) {
-                        console.log(i);
-                        }`);
-                    }
+                  onChange={(event) =>
+                    changeLanguage(event.target.value as Language)
+                  }
+                  className="rounded-lg border px-3 py-2 text-sm"
+                  style={{
+                    background: "var(--app-code-bg)",
+                    color: "var(--app-text)",
+                    borderColor: "var(--app-border)",
                   }}
-                  className="rounded-lg border border-neutral-700 bg-black px-3 py-2 text-sm text-neutral-100"
                 >
                   <option value="python">Python</option>
                   <option value="javascript">JavaScript</option>
@@ -207,13 +225,16 @@ export default function Home() {
                 <button
                   onClick={runCode}
                   disabled={isRunning}
-                  className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-neutral-700"
+                  className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-neutral-700"
                 >
                   {isRunning ? "Running..." : "Run"}
                 </button>
               </div>
 
-              <div className="overflow-hidden rounded-lg border border-neutral-800">
+              <div
+                className="overflow-hidden rounded-lg border"
+                style={{ borderColor: "var(--app-border)" }}
+              >
                 <Editor
                   height="420px"
                   language={language}
@@ -231,36 +252,60 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
+            <section
+              className="rounded-xl border p-4"
+              style={{
+                background: "var(--app-panel)",
+                borderColor: "var(--app-border)",
+              }}
+            >
               <h2 className="mb-3 text-xl font-semibold">Result</h2>
 
               {!result && (
-                <p className="text-neutral-500">
+                <p style={{ color: "var(--app-muted)" }}>
                   Run code to see execution result.
                 </p>
               )}
 
               {result && (
                 <div className="space-y-4">
-                  <div className="text-sm text-neutral-400">
+                  <div
+                    className="text-sm"
+                    style={{ color: "var(--app-muted)" }}
+                  >
                     Run ID: {result.id || "-"} | Status: {result.status}
                   </div>
 
                   <div>
                     <h3 className="mb-1 font-medium text-green-400">STDOUT</h3>
-                    <pre className="overflow-auto rounded-lg bg-black p-3 text-sm">
+                    <pre
+                      className="overflow-auto rounded-lg p-3 text-sm"
+                      style={{
+                        background: "var(--app-code-bg)",
+                        color: "var(--app-text)",
+                      }}
+                    >
                       {result.stdout || "(empty)"}
                     </pre>
                   </div>
 
                   <div>
                     <h3 className="mb-1 font-medium text-red-400">STDERR</h3>
-                    <pre className="overflow-auto rounded-lg bg-black p-3 text-sm">
+                    <pre
+                      className="overflow-auto rounded-lg p-3 text-sm"
+                      style={{
+                        background: "var(--app-code-bg)",
+                        color: "var(--app-text)",
+                      }}
+                    >
                       {result.stderr || "(empty)"}
                     </pre>
                   </div>
 
-                  <div className="text-sm text-neutral-400">
+                  <div
+                    className="text-sm"
+                    style={{ color: "var(--app-muted)" }}
+                  >
                     Exit code: {result.exitCode ?? "-"}
                   </div>
                 </div>
@@ -268,13 +313,23 @@ export default function Home() {
             </section>
           </div>
 
-          <aside className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
+          <aside
+            className="rounded-xl border p-4"
+            style={{
+              background: "var(--app-panel)",
+              borderColor: "var(--app-border)",
+            }}
+          >
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold">Recent Runs</h2>
 
               <button
                 onClick={() => loadHistory()}
-                className="rounded-lg bg-neutral-800 px-3 py-1 text-sm hover:bg-neutral-700"
+                className="rounded-lg px-3 py-1 text-sm transition"
+                style={{
+                  background: "var(--app-panel-soft)",
+                  color: "var(--app-text)",
+                }}
               >
                 Refresh
               </button>
@@ -282,17 +337,23 @@ export default function Home() {
 
             <div className="space-y-3">
               {runs.length === 0 && (
-                <p className="text-sm text-neutral-500">No runs yet.</p>
+                <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                  No runs yet.
+                </p>
               )}
 
               {runs.map((run) => (
                 <button
                   key={run.id}
                   onClick={() => openRun(run)}
-                  className="w-full rounded-lg border border-neutral-800 bg-black p-3 text-left hover:border-blue-600"
+                  className="w-full rounded-lg border p-3 text-left transition hover:border-blue-600"
+                  style={{
+                    background: "var(--app-code-bg)",
+                    borderColor: "var(--app-border)",
+                  }}
                 >
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-sm font-medium uppercase text-neutral-300">
+                    <span className="text-sm font-medium uppercase">
                       {run.language}
                     </span>
 
@@ -309,11 +370,17 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <pre className="line-clamp-3 whitespace-pre-wrap text-xs text-neutral-400">
+                  <pre
+                    className="line-clamp-3 whitespace-pre-wrap text-xs"
+                    style={{ color: "var(--app-muted)" }}
+                  >
                     {run.code}
                   </pre>
 
-                  <div className="mt-2 text-xs text-neutral-600">
+                  <div
+                    className="mt-2 text-xs"
+                    style={{ color: "var(--app-muted)" }}
+                  >
                     {new Date(run.createdAt).toLocaleString()}
                   </div>
                 </button>
