@@ -2,7 +2,7 @@ import { IsIn, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreateRunDto {
   @IsString()
-  @IsIn(['python'])
+  @IsIn(['python', 'javascript'])
   language!: string;
 
   @IsString()

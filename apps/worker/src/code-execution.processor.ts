@@ -9,6 +9,25 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+type ExecutionConfig = {
+  image: string;
+  command: string;
+  args: string[];
+};
+
+const EXECUTION_CONFIGS: Record<string, ExecutionConfig> = {
+  python: {
+    image: 'coderunner-python-sandbox',
+    command: 'python3',
+    args: ['-c'],
+  },
+  javascript: {
+    image: 'coderunner-javascript-sandbox',
+    command: 'node',
+    args: ['-e'],
+  },
+};
+
 @Processor('code-execution')
 export class CodeExecutionProcessor extends WorkerHost {
   async process(job: Job) {
@@ -18,7 +37,9 @@ export class CodeExecutionProcessor extends WorkerHost {
       return;
     }
 
-    if (language !== 'python') {
+    const config = EXECUTION_CONFIGS[language];
+
+    if (!config) {
       await this.updateRun(runId, {
         status: 'failed',
         stdout: '',
@@ -49,9 +70,9 @@ export class CodeExecutionProcessor extends WorkerHost {
           '--read-only',
           '--tmpfs',
           '/tmp:rw,size=64m',
-          'coderunner-python-sandbox',
-          'python3',
-          '-c',
+          config.image,
+          config.command,
+          ...config.args,
           code,
         ],
         {
