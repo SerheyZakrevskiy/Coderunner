@@ -4,10 +4,10 @@ import { IsIn, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 export class CreateRunDto {
   @ApiProperty({
     example: 'python',
-    enum: ['python', 'javascript'],
+    enum: ['python', 'javascript', 'cpp'],
   })
   @IsString()
-  @IsIn(['python', 'javascript'])
+  @IsIn(['python', 'javascript', 'cpp'])
   language!: string;
 
   @ApiProperty({

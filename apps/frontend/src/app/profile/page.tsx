@@ -1,7 +1,6 @@
 "use client";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Navbar } from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -86,6 +85,28 @@ export default function ProfilePage() {
     return "text-yellow-400";
   }
 
+  function getRunsByLanguage(language: string) {
+    return runs.filter((run) => run.language === language).length;
+  }
+
+  function getCompletedRuns() {
+    return runs.filter((run) => run.status === "completed").length;
+  }
+
+  function getFailedRuns() {
+    return runs.filter(
+      (run) => run.status === "failed" || run.status === "timeout",
+    ).length;
+  }
+
+  function getSuccessRate() {
+    if (runs.length === 0) {
+      return 0;
+    }
+
+    return Math.round((getCompletedRuns() / runs.length) * 100);
+  }
+
   return (
     <main
       className="min-h-screen p-6"
@@ -94,10 +115,9 @@ export default function ProfilePage() {
         color: "var(--app-text)",
       }}
     >
-      <Navbar />
-      <div className="mx-auto max-w-4xl space-y-6">
+      <div className="mx-auto max-w-5xl space-y-6">
         <header
-          className="rounded-xl border p-6"
+          className="rounded-2xl border p-6"
           style={{
             background: "var(--app-panel)",
             borderColor: "var(--app-border)",
@@ -129,7 +149,27 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3"></div>
+            <div className="flex flex-wrap gap-3">
+              <ThemeToggle />
+
+              <button
+                onClick={() => router.push("/")}
+                className="rounded-xl px-4 py-2 font-medium transition"
+                style={{
+                  background: "var(--app-panel-soft)",
+                  color: "var(--app-text)",
+                }}
+              >
+                CodeRunner
+              </button>
+
+              <button
+                onClick={logout}
+                className="rounded-xl bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-500"
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -154,10 +194,25 @@ export default function ProfilePage() {
               }}
             >
               <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                Success rate
+              </p>
+              <p className="mt-2 text-2xl font-bold text-green-400">
+                {getSuccessRate()}%
+              </p>
+            </div>
+
+            <div
+              className="rounded-xl border p-4"
+              style={{
+                background: "var(--app-code-bg)",
+                borderColor: "var(--app-border)",
+              }}
+            >
+              <p className="text-sm" style={{ color: "var(--app-muted)" }}>
                 Completed
               </p>
               <p className="mt-2 text-2xl font-bold text-green-400">
-                {runs.filter((run) => run.status === "completed").length}
+                {getCompletedRuns()}
               </p>
             </div>
 
@@ -169,10 +224,27 @@ export default function ProfilePage() {
               }}
             >
               <p className="text-sm" style={{ color: "var(--app-muted)" }}>
-                Failed
+                Failed / Timeout
               </p>
               <p className="mt-2 text-2xl font-bold text-red-400">
-                {runs.filter((run) => run.status === "failed").length}
+                {getFailedRuns()}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div
+              className="rounded-xl border p-4"
+              style={{
+                background: "var(--app-code-bg)",
+                borderColor: "var(--app-border)",
+              }}
+            >
+              <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                Python runs
+              </p>
+              <p className="mt-2 text-2xl font-bold">
+                {getRunsByLanguage("python")}
               </p>
             </div>
 
@@ -184,17 +256,32 @@ export default function ProfilePage() {
               }}
             >
               <p className="text-sm" style={{ color: "var(--app-muted)" }}>
-                Languages
+                JavaScript runs
               </p>
               <p className="mt-2 text-2xl font-bold">
-                {new Set(runs.map((run) => run.language)).size}
+                {getRunsByLanguage("javascript")}
+              </p>
+            </div>
+
+            <div
+              className="rounded-xl border p-4"
+              style={{
+                background: "var(--app-code-bg)",
+                borderColor: "var(--app-border)",
+              }}
+            >
+              <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                C++ runs
+              </p>
+              <p className="mt-2 text-2xl font-bold">
+                {getRunsByLanguage("cpp")}
               </p>
             </div>
           </div>
         </header>
 
         <section
-          className="rounded-xl border p-6"
+          className="rounded-2xl border p-6"
           style={{
             background: "var(--app-panel)",
             borderColor: "var(--app-border)",
@@ -226,7 +313,7 @@ export default function ProfilePage() {
               <button
                 key={run.id}
                 onClick={() => router.push(`/runs/${run.id}`)}
-                className="w-full rounded-lg border p-4 text-left transition hover:border-blue-600"
+                className="w-full rounded-xl border p-4 text-left transition hover:border-blue-600"
                 style={{
                   background: "var(--app-code-bg)",
                   borderColor: "var(--app-border)",
@@ -256,7 +343,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div
-                  className="rounded-md p-3"
+                  className="rounded-lg p-3"
                   style={{ background: "var(--app-panel)" }}
                 >
                   <p className="text-xs font-semibold text-green-400">STDOUT</p>
