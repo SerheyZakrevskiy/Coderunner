@@ -36,6 +36,55 @@ Docker Sandbox
 ↓
 Execution Result
 
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+    User[User Browser] --> Frontend[Frontend: Next.js + Monaco Editor]
+
+    Frontend --> Backend[Backend API: NestJS]
+
+    Backend --> Auth[JWT Authentication]
+    Backend --> Database[(PostgreSQL)]
+    Backend --> Queue[Redis Queue]
+
+    Queue --> Worker[Worker Service]
+
+    Worker --> SandboxPython[Docker Sandbox: Python]
+    Worker --> SandboxJS[Docker Sandbox: JavaScript]
+    Worker --> SandboxCPP[Docker Sandbox: C++]
+
+    SandboxPython --> Worker
+    SandboxJS --> Worker
+    SandboxCPP --> Worker
+
+    Worker --> Database
+
+    Backend --> Swagger[Swagger API Docs]
+    Backend --> Health[Health Check]
+
+    Database --> Backend
+    Backend --> Frontend
+```
+
+## Screenshots
+
+### Dashboard
+
+![alt text](image-1.png)
+
+### Profile
+
+![alt text](image-2.png)
+
+### Run Details
+
+![alt text](image-3.png)
+
+### Swagger API
+
+![alt text](image.png)
+
 ## Technology Stack
 
 ### Frontend

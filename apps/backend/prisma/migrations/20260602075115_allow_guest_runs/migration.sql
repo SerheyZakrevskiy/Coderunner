@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Run" ALTER COLUMN "userId" DROP NOT NULL;

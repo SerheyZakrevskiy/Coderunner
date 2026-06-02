@@ -80,6 +80,26 @@ export class AuthService {
       accessToken: this.signToken(user.id, user.email),
     };
   }
+  async getProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+      },
+    });
+
+    return {
+      userId: user?.id,
+      email: user?.email,
+      name: user?.name,
+      createdAt: user?.createdAt,
+    };
+  }
 
   private signToken(userId: string, email: string) {
     return this.jwtService.sign({

@@ -9,6 +9,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 type Profile = {
   userId: string;
   email: string;
+  name?: string | null;
 };
 
 type Run = {
@@ -125,27 +126,31 @@ export default function ProfilePage() {
         >
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-2xl font-bold text-white">
-                {profile?.email?.[0]?.toUpperCase() ?? "U"}
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-xl font-bold text-white shadow-lg shadow-blue-600/20">
+                {(profile?.name || profile?.email)?.[0]?.toUpperCase() ?? "U"}
               </div>
 
-              <div>
-                <h1 className="text-3xl font-bold">Profile</h1>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="text-3xl font-bold leading-none">
+                    {profile?.name || "Profile"}
+                  </h1>
+
+                  <span className="rounded-full border border-blue-600/40 bg-blue-600/10 px-3 py-1 text-xs font-medium text-blue-400">
+                    CodeRunner account
+                  </span>
+                </div>
 
                 {profile && (
-                  <div className="mt-2 space-y-1">
-                    <p className="text-lg font-medium">{profile.email}</p>
-
-                    <p
-                      className="text-sm"
-                      style={{ color: "var(--app-muted)" }}
-                    >
-                      CodeRunner account
-                    </p>
-                  </div>
+                  <p
+                    className="mt-2 truncate text-sm"
+                    style={{ color: "var(--app-muted)" }}
+                  >
+                    {profile.email}
+                  </p>
                 )}
 
-                {error && <p className="mt-4 text-red-400">{error}</p>}
+                {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
               </div>
             </div>
 

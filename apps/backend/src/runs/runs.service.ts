@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Queue } from 'bullmq';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateRunDto } from './dto/create-run.dto';
 
 @Injectable()
 export class RunsService {
@@ -12,7 +13,7 @@ export class RunsService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async run(body: any, userId: string) {
+  async run(body: CreateRunDto, userId: string | null) {
     const run = await this.prisma.run.create({
       data: {
         language: body.language,

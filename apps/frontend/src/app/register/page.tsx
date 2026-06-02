@@ -71,6 +71,13 @@ export default function RegisterPage() {
           >
             Create account
           </button>
+          <button
+            type="button"
+            onClick={() => router.push("/login")}
+            className="w-full text-sm text-blue-400 transition hover:text-blue-300"
+          >
+            Already have an account? Login
+          </button>
         </div>
       </div>
     </main>

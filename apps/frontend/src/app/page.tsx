@@ -48,14 +48,12 @@ export default function Home() {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
-    if (!token) {
-      router.push("/login");
-      return;
+    if (token) {
+      loadHistory(token);
     }
 
-    loadHistory(token);
     loadHealth();
-  }, [router]);
+  }, []);
 
   async function loadHistory(token?: string) {
     const accessToken = token ?? localStorage.getItem("accessToken");
@@ -122,9 +120,12 @@ int main() {
   async function runCode() {
     const token = localStorage.getItem("accessToken");
 
-    if (!token) {
-      router.push("/login");
-      return;
+    const createHeaders: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      createHeaders.Authorization = `Bearer ${token}`;
     }
 
     setIsRunning(true);
@@ -133,10 +134,7 @@ int main() {
     try {
       const createResponse = await fetch(`${API_URL}/runs`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: createHeaders,
         body: JSON.stringify({
           language,
           code,
@@ -150,10 +148,14 @@ int main() {
       }
 
       for (let i = 0; i < 60; i++) {
+        const resultHeaders: Record<string, string> = {};
+
+        if (token) {
+          resultHeaders.Authorization = `Bearer ${token}`;
+        }
+
         const resultResponse = await fetch(`${API_URL}/runs/${created.runId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: resultHeaders,
         });
 
         const runResult: RunResult = await resultResponse.json();
@@ -164,7 +166,11 @@ int main() {
           runResult.status === "timeout"
         ) {
           setResult(runResult);
-          await loadHistory(token);
+
+          if (token) {
+            await loadHistory(token);
+          }
+
           return;
         }
 
