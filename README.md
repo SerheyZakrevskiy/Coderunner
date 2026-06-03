@@ -71,19 +71,19 @@ flowchart TD
 
 ### Dashboard
 
-![alt text](image-1.png)
+![alt text](images/image-1.png)
 
 ### Profile
 
-![alt text](image-2.png)
+![alt text](images/image-2.png)
 
 ### Run Details
 
-![alt text](image-3.png)
+![alt text](images/image-3.png)
 
 ### Swagger API
 
-![alt text](image.png)
+![alt text](images/image.png)
 
 ## Technology Stack
 
@@ -162,6 +162,12 @@ http://localhost:3000/api/docs
 ```text
 http://localhost:3000/health
 ```
+
+## Testing
+
+Testing strategy and manual test cases are described in:
+
+[Testing Documentation](docs/TESTING.md)
 
 ## Author
 
